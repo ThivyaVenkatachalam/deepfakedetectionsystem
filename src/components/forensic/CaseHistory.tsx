@@ -30,7 +30,7 @@ export function CaseHistory({ cases, onSelectCase, selectedCaseId }: CaseHistory
     <div className="glass-panel p-4 h-full flex flex-col">
       <h3 className="text-sm font-semibold mb-4 text-foreground flex items-center gap-2">
         <History className="w-4 h-4 text-primary" />
-        Case History
+        History
         <span className="ml-auto text-xs font-mono text-muted-foreground">
           {cases.length} cases
         </span>
@@ -40,7 +40,7 @@ export function CaseHistory({ cases, onSelectCase, selectedCaseId }: CaseHistory
         {cases.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <History className="w-8 h-8 mx-auto mb-2 opacity-50" />
-            <p className="text-sm">No cases analyzed yet</p>
+            <p className="text-sm">Not analyzed yet</p>
           </div>
         ) : (
           cases.map((caseItem) => (
