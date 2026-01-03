@@ -43,8 +43,8 @@ export function VerdictDisplay({ result, isAnalyzing }: VerdictDisplayProps) {
           </div>
           <div className="absolute inset-0 rounded-full border-4 border-primary border-t-transparent animate-spin" style={{ animationDuration: '1.5s' }} />
         </div>
-        <p className="mt-6 text-lg font-semibold text-foreground">Analyzing Evidence...</p>
-        <p className="text-sm text-muted-foreground mt-1">Running forensic detection algorithms</p>
+        <p className="mt-6 text-lg font-semibold text-foreground">Analyzing ...</p>
+        <p className="text-sm text-muted-foreground mt-1">Running detection algorithms</p>
       </div>
     );
   }
@@ -55,7 +55,7 @@ export function VerdictDisplay({ result, isAnalyzing }: VerdictDisplayProps) {
         <div className="w-16 h-16 rounded-full bg-secondary flex items-center justify-center mb-4">
           <Shield className="w-8 h-8 text-muted-foreground" />
         </div>
-        <p className="text-lg font-medium text-muted-foreground">Awaiting Evidence</p>
+        <p className="text-lg font-medium text-muted-foreground">Awaiting</p>
         <p className="text-sm text-muted-foreground mt-1">Upload a file to begin analysis</p>
       </div>
     );
@@ -82,7 +82,7 @@ export function VerdictDisplay({ result, isAnalyzing }: VerdictDisplayProps) {
           <p className="text-foreground/80 mb-4">{config.description}</p>
           
           <div className="p-4 rounded-lg bg-background/50 border border-current/20">
-            <h4 className="text-sm font-semibold mb-2 text-foreground">AI Explanation:</h4>
+            <h4 className="text-sm font-semibold mb-2 text-foreground">Explanation:</h4>
             <p className="text-sm text-foreground/80 leading-relaxed">
               {result.explanation}
             </p>
