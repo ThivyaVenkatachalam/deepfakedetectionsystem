@@ -39,12 +39,12 @@ export default function Index() {
     <div className="min-h-screen bg-background forensic-grid">
       <Header activeMode={activeMode} onModeChange={setActiveMode} />
       
-      <main className="py-4">
+      <main className="py-2 md:py-4">
         <div>
           {activeMode === 'forensic' ? (
-            <div className="grid grid-cols-12 gap-2 px-2">
-              {/* Left Sidebar - Case History */}
-              <aside className="col-span-12 lg:col-span-2 order-2 lg:order-1">
+            <div className="flex flex-col lg:grid lg:grid-cols-12 gap-4 px-2 md:px-4">
+              {/* Left Sidebar - Case History (Hidden on mobile, shown at bottom) */}
+              <aside className="hidden lg:block lg:col-span-2">
                 <CaseHistory 
                   cases={history} 
                   onSelectCase={selectCase}
@@ -53,7 +53,7 @@ export default function Index() {
               </aside>
 
               {/* Main Content Area */}
-              <div className="col-span-12 lg:col-span-7 order-1 lg:order-2 space-y-6">
+              <div className="lg:col-span-7 space-y-4 md:space-y-6">
                 {/* Upload Section */}
                 <FileUploader 
                   onFileSelect={handleFileSelect} 
@@ -65,7 +65,7 @@ export default function Index() {
 
                 {/* Analysis Visualizations */}
                 {result && !isAnalyzing && (
-                  <div className="space-y-6 animate-slide-up">
+                  <div className="space-y-4 md:space-y-6 animate-slide-up">
                     {/* Image Analysis */}
                     {result.fileType === 'image' && result.heatmapData && previewUrl && (
                       <Heatmap imageUrl={previewUrl} points={result.heatmapData} />
@@ -85,7 +85,7 @@ export default function Index() {
               </div>
 
               {/* Right Sidebar - Details & Report */}
-              <aside className="col-span-12 lg:col-span-3 order-3 space-y-6">
+              <aside className="lg:col-span-3 space-y-4 md:space-y-6">
                 {/* EXIF Data */}
                 {result && result.exifData && !isAnalyzing && (
                   <ExifPanel data={result.exifData} />
@@ -136,9 +136,18 @@ export default function Index() {
                   </div>
                 )}
               </aside>
+
+              {/* Case History - Mobile only (at bottom) */}
+              <aside className="lg:hidden">
+                <CaseHistory 
+                  cases={history} 
+                  onSelectCase={selectCase}
+                  selectedCaseId={result?.id}
+                />
+              </aside>
             </div>
           ) : (
-            <div className="max-w-4xl mx-auto">
+            <div className="px-2 md:px-4 max-w-4xl mx-auto">
               <WebWatch />
             </div>
           )}
