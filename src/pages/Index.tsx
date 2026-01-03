@@ -39,8 +39,8 @@ export default function Index() {
     <div className="min-h-screen bg-background forensic-grid">
       <Header activeMode={activeMode} onModeChange={setActiveMode} />
       
-      <main className="p-4">
-        <div className="w-full">
+      <main className="px-2 py-4">
+        <div>
           {activeMode === 'forensic' ? (
             <div className="grid grid-cols-12 gap-4">
               {/* Left Sidebar - Case History */}
