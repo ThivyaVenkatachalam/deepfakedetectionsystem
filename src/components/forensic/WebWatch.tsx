@@ -2,6 +2,48 @@ import { useState } from "react";
 import { Globe, AlertTriangle, CheckCircle, Clock, Shield, ExternalLink, Search, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { z } from "zod";
+
+// URL validation schema using zod
+const urlSchema = z.string()
+  .trim()
+  .min(1, "URL cannot be empty")
+  .max(2048, "URL is too long")
+  .refine((val) => {
+    // Add protocol if missing for validation
+    const urlToValidate = val.startsWith('http') ? val : `https://${val}`;
+    try {
+      const parsed = new URL(urlToValidate);
+      // Only allow http and https protocols
+      if (!['http:', 'https:'].includes(parsed.protocol)) {
+        return false;
+      }
+      // Validate hostname format (no empty or invalid hostnames)
+      if (!parsed.hostname || parsed.hostname.length === 0) {
+        return false;
+      }
+      // Block localhost and private IPs for security
+      const hostname = parsed.hostname.toLowerCase();
+      if (hostname === 'localhost' || 
+          hostname.startsWith('127.') || 
+          hostname.startsWith('192.168.') ||
+          hostname.startsWith('10.') ||
+          hostname.startsWith('172.16.')) {
+        return false;
+      }
+      return true;
+    } catch {
+      return false;
+    }
+  }, "Please enter a valid URL or domain name");
+
+// Safely extract and sanitize domain from URL
+const extractDomain = (url: string): string => {
+  const urlToValidate = url.startsWith('http') ? url : `https://${url}`;
+  const parsed = new URL(urlToValidate);
+  // Sanitize hostname - remove any potential injection characters
+  return parsed.hostname.toLowerCase().replace(/[^a-z0-9.-]/g, '');
+};
 
 interface UrlAnalysisResult {
   url: string;
@@ -34,18 +76,20 @@ export function WebWatch() {
     setError(null);
     setResult(null);
 
+    // Validate URL using zod schema
+    const validation = urlSchema.safeParse(url);
+    if (!validation.success) {
+      setError(validation.error.errors[0]?.message || "Invalid URL format");
+      setIsAnalyzing(false);
+      return;
+    }
+
     // Simulate API call - in production, this would call a backend with python-whois
     await new Promise(resolve => setTimeout(resolve, 2000));
 
     try {
-      // Extract domain from URL
-      let domain = url;
-      try {
-        const urlObj = new URL(url.startsWith('http') ? url : `https://${url}`);
-        domain = urlObj.hostname;
-      } catch {
-        domain = url.replace(/^(https?:\/\/)?/, '').split('/')[0];
-      }
+      // Extract sanitized domain from validated URL
+      const domain = extractDomain(url);
 
       // Simulated analysis - in production would use real WHOIS data
       const isNewDomain = Math.random() > 0.6;
