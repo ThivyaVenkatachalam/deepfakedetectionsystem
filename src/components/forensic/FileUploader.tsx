@@ -99,7 +99,7 @@ export function FileUploader({ onFileSelect, isAnalyzing }: FileUploaderProps) {
   return (
     <div className="glass-panel p-6 space-y-4">
       <div className="flex items-center justify-between">
-        <h2 className="text-lg font-semibold text-foreground">Evidence Upload</h2>
+        <h2 className="text-lg font-semibold text-foreground">Upload</h2>
         {selectedFile && (
           <Button variant="ghost" size="sm" onClick={clearFile} disabled={isAnalyzing}>
             <X className="w-4 h-4 mr-1" /> Clear
@@ -149,7 +149,7 @@ export function FileUploader({ onFileSelect, isAnalyzing }: FileUploaderProps) {
               <Upload className="w-8 h-8 text-primary" />
             </div>
             <p className="text-lg font-medium text-foreground mb-2">
-              Drag & drop evidence file
+              Drag & drop file
             </p>
             <p className="text-sm text-muted-foreground mb-4">
               Supports images, audio, and video files up to 100MB
