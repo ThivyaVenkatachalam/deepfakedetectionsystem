@@ -1,6 +1,13 @@
-import { Shield, Database, Clock } from "lucide-react";
+import { Shield, Database, Clock, FlaskConical, Globe } from "lucide-react";
+import { ThemeToggle } from "@/components/ThemeToggle";
+import { Button } from "@/components/ui/button";
 
-export function Header() {
+interface HeaderProps {
+  activeMode: 'forensic' | 'webwatch';
+  onModeChange: (mode: 'forensic' | 'webwatch') => void;
+}
+
+export function Header({ activeMode, onModeChange }: HeaderProps) {
   const currentTime = new Date().toLocaleString('en-IN', {
     timeZone: 'Asia/Kolkata',
     dateStyle: 'medium',
@@ -22,12 +29,34 @@ export function Header() {
               AI DeepFake Detection System
             </h1>
             <p className="text-sm text-muted-foreground">
-              Detect Manipulated Images,Videos and Url's
+              Detect Manipulated Images, Videos and URLs
             </p>
           </div>
         </div>
 
-        <div className="flex items-center gap-6">
+        {/* Mode Tabs */}
+        <div className="flex items-center gap-1 p-1 rounded-lg bg-muted/50">
+          <Button
+            variant={activeMode === 'forensic' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => onModeChange('forensic')}
+            className="gap-2"
+          >
+            <FlaskConical className="w-4 h-4" />
+            Forensic Lab
+          </Button>
+          <Button
+            variant={activeMode === 'webwatch' ? 'default' : 'ghost'}
+            size="sm"
+            onClick={() => onModeChange('webwatch')}
+            className="gap-2"
+          >
+            <Globe className="w-4 h-4" />
+            Web Watch
+          </Button>
+        </div>
+
+        <div className="flex items-center gap-4">
           <div className="flex items-center gap-2 text-muted-foreground">
             <Database className="w-4 h-4" />
             <span className="text-sm font-mono">v2.4.1</span>
@@ -36,6 +65,7 @@ export function Header() {
             <Clock className="w-4 h-4" />
             <span className="text-sm font-mono">{currentTime}</span>
           </div>
+          <ThemeToggle />
           <div className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-success/10 border border-success/30">
             <div className="w-2 h-2 bg-success rounded-full animate-pulse" />
             <span className="text-sm font-medium text-success">System Online</span>
