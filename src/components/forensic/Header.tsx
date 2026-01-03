@@ -1,4 +1,4 @@
-import { Shield, Database, Clock, FlaskConical, Globe } from "lucide-react";
+import { Shield, Clock, FlaskConical, Globe } from "lucide-react";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { Button } from "@/components/ui/button";
 
@@ -57,10 +57,6 @@ export function Header({ activeMode, onModeChange }: HeaderProps) {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-muted-foreground">
-            <Database className="w-4 h-4" />
-            <span className="text-sm font-mono">v2.4.1</span>
-          </div>
           <div className="flex items-center gap-2 text-muted-foreground">
             <Clock className="w-4 h-4" />
             <span className="text-sm font-mono">{currentTime}</span>
