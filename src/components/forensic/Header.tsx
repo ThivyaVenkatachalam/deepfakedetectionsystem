@@ -19,10 +19,10 @@ export function Header() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-gradient-primary">
-              DeepGuard Forensic Lab
+              AI DeepFake Detection System
             </h1>
             <p className="text-sm text-muted-foreground">
-              Nilgiris District Police • Digital Evidence Unit
+              Detect Manipulated Images,Videos and Url's
             </p>
           </div>
         </div>
