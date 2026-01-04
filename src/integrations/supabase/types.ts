@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      analysis_cases: {
+        Row: {
+          anomalies: Json | null
+          confidence: number
+          created_at: string
+          exif_data: Json | null
+          explanation: string | null
+          file_hash: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url: string | null
+          frame_analysis: Json | null
+          heatmap_data: Json | null
+          id: string
+          spectrogram_data: Json | null
+          verdict: string
+        }
+        Insert: {
+          anomalies?: Json | null
+          confidence: number
+          created_at?: string
+          exif_data?: Json | null
+          explanation?: string | null
+          file_hash?: string | null
+          file_name: string
+          file_size: number
+          file_type: string
+          file_url?: string | null
+          frame_analysis?: Json | null
+          heatmap_data?: Json | null
+          id?: string
+          spectrogram_data?: Json | null
+          verdict: string
+        }
+        Update: {
+          anomalies?: Json | null
+          confidence?: number
+          created_at?: string
+          exif_data?: Json | null
+          explanation?: string | null
+          file_hash?: string | null
+          file_name?: string
+          file_size?: number
+          file_type?: string
+          file_url?: string | null
+          frame_analysis?: Json | null
+          heatmap_data?: Json | null
+          id?: string
+          spectrogram_data?: Json | null
+          verdict?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

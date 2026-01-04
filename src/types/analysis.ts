@@ -7,6 +7,7 @@ export interface AnalysisResult {
   fileName: string;
   fileType: MediaType;
   fileSize: number;
+  fileUrl?: string;
   fileHash: string;
   timestamp: Date;
   verdict: VerdictLevel;
