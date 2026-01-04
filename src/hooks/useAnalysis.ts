@@ -1,4 +1,5 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useEffect } from "react";
+import { supabase } from "@/integrations/supabase/client";
 import type { AnalysisResult, MediaType, VerdictLevel, HeatmapPoint, SpectrogramData, FrameAnalysis, ExifData, Anomaly } from "@/types/analysis";
 
 // Generate a random hash for demo purposes
@@ -159,14 +160,112 @@ function generateExplanation(verdict: VerdictLevel, fileType: MediaType): string
   return explanations[verdict][fileType];
 }
 
+// Upload file to Supabase storage
+async function uploadFile(file: File): Promise<string | null> {
+  const fileExt = file.name.split('.').pop();
+  const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+  
+  const { error } = await supabase.storage
+    .from('media-uploads')
+    .upload(fileName, file);
+  
+  if (error) {
+    console.error('Upload error:', error);
+    return null;
+  }
+  
+  const { data: { publicUrl } } = supabase.storage
+    .from('media-uploads')
+    .getPublicUrl(fileName);
+  
+  return publicUrl;
+}
+
+// Save analysis case to database
+async function saveCase(result: AnalysisResult, fileUrl: string | null): Promise<string | null> {
+  const insertData = {
+    file_name: result.fileName,
+    file_type: result.fileType,
+    file_size: result.fileSize,
+    file_url: fileUrl,
+    verdict: result.verdict,
+    confidence: Math.round(result.confidenceScore * 100),
+    explanation: result.explanation,
+    file_hash: result.fileHash,
+    anomalies: JSON.parse(JSON.stringify(result.technicalDetails.anomalies)),
+    heatmap_data: result.heatmapData ? JSON.parse(JSON.stringify(result.heatmapData)) : null,
+    spectrogram_data: result.spectrogramData ? JSON.parse(JSON.stringify(result.spectrogramData)) : null,
+    frame_analysis: result.frameAnalysis ? JSON.parse(JSON.stringify(result.frameAnalysis)) : null,
+    exif_data: result.exifData ? JSON.parse(JSON.stringify(result.exifData)) : null
+  };
+
+  const { data, error } = await supabase
+    .from('analysis_cases')
+    .insert(insertData)
+    .select('id')
+    .single();
+  
+  if (error) {
+    console.error('Save error:', error);
+    return null;
+  }
+  
+  return data?.id || null;
+}
+
+// Load cases from database
+async function loadCases(): Promise<AnalysisResult[]> {
+  const { data, error } = await supabase
+    .from('analysis_cases')
+    .select('*')
+    .order('created_at', { ascending: false })
+    .limit(50);
+  
+  if (error) {
+    console.error('Load error:', error);
+    return [];
+  }
+  
+  return (data || []).map(row => ({
+    id: row.id,
+    fileName: row.file_name,
+    fileType: row.file_type as MediaType,
+    fileSize: row.file_size,
+    fileUrl: row.file_url || undefined,
+    fileHash: row.file_hash || '',
+    timestamp: new Date(row.created_at),
+    verdict: row.verdict as VerdictLevel,
+    confidenceScore: row.confidence / 100,
+    explanation: row.explanation || '',
+    technicalDetails: {
+      anomalies: (row.anomalies as unknown as Anomaly[]) || [],
+      modelUsed: 'EfficientNet-B4 + Custom CNN',
+      processingTime: 2000,
+      checksPerformed: []
+    },
+    heatmapData: row.heatmap_data as unknown as HeatmapPoint[] | undefined,
+    spectrogramData: row.spectrogram_data as unknown as SpectrogramData | undefined,
+    frameAnalysis: row.frame_analysis as unknown as FrameAnalysis[] | undefined,
+    exifData: row.exif_data as unknown as ExifData | undefined
+  }));
+}
+
 export function useAnalysis() {
   const [result, setResult] = useState<AnalysisResult | null>(null);
   const [history, setHistory] = useState<AnalysisResult[]>([]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
 
+  // Load history on mount
+  useEffect(() => {
+    loadCases().then(setHistory);
+  }, []);
+
   const analyzeFile = useCallback(async (file: File, fileType: MediaType) => {
     setIsAnalyzing(true);
     setResult(null);
+
+    // Upload file to storage
+    const fileUrl = await uploadFile(file);
 
     // Simulate analysis time
     await new Promise(resolve => setTimeout(resolve, 2000 + Math.random() * 2000));
@@ -180,6 +279,7 @@ export function useAnalysis() {
       fileName: file.name,
       fileType,
       fileSize: file.size,
+      fileUrl: fileUrl || undefined,
       fileHash: generateHash(),
       timestamp: new Date(),
       verdict,
@@ -204,6 +304,12 @@ export function useAnalysis() {
       exifData: fileType === 'image' ? generateExifData(verdict) : undefined
     };
 
+    // Save to database
+    const savedId = await saveCase(analysisResult, fileUrl);
+    if (savedId) {
+      analysisResult.id = savedId;
+    }
+
     setResult(analysisResult);
     setHistory(prev => [analysisResult, ...prev].slice(0, 50));
     setIsAnalyzing(false);
@@ -218,11 +324,26 @@ export function useAnalysis() {
     }
   }, [history]);
 
+  const deleteCase = useCallback(async (caseId: string) => {
+    const { error } = await supabase
+      .from('analysis_cases')
+      .delete()
+      .eq('id', caseId);
+    
+    if (!error) {
+      setHistory(prev => prev.filter(c => c.id !== caseId));
+      if (result?.id === caseId) {
+        setResult(null);
+      }
+    }
+  }, [result]);
+
   return {
     result,
     history,
     isAnalyzing,
     analyzeFile,
-    selectCase
+    selectCase,
+    deleteCase
   };
 }
