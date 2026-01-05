@@ -324,19 +324,36 @@ export function useAnalysis() {
     }
   }, [history]);
 
-  const deleteCase = useCallback(async (caseId: string) => {
+  const deleteCase = useCallback(async (caseId: string): Promise<boolean> => {
+    const caseToDelete = history.find(c => c.id === caseId);
+    
+    // Delete file from storage if exists
+    if (caseToDelete?.fileUrl) {
+      const urlParts = caseToDelete.fileUrl.split('/');
+      const fileName = urlParts[urlParts.length - 1];
+      if (fileName) {
+        await supabase.storage.from('media-uploads').remove([fileName]);
+      }
+    }
+    
+    // Delete from database
     const { error } = await supabase
       .from('analysis_cases')
       .delete()
       .eq('id', caseId);
     
-    if (!error) {
-      setHistory(prev => prev.filter(c => c.id !== caseId));
-      if (result?.id === caseId) {
-        setResult(null);
-      }
+    if (error) {
+      console.error('Delete error:', error);
+      return false;
     }
-  }, [result]);
+    
+    setHistory(prev => prev.filter(c => c.id !== caseId));
+    if (result?.id === caseId) {
+      setResult(null);
+    }
+    
+    return true;
+  }, [result, history]);
 
   return {
     result,

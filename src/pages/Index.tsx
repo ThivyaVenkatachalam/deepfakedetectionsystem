@@ -14,7 +14,7 @@ import type { MediaType } from "@/types/analysis";
 
 export default function Index() {
   const [activeMode, setActiveMode] = useState<'forensic' | 'webwatch'>('forensic');
-  const { result, history, isAnalyzing, analyzeFile, selectCase } = useAnalysis();
+  const { result, history, isAnalyzing, analyzeFile, selectCase, deleteCase } = useAnalysis();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleFileSelect = async (file: File, type: MediaType) => {
@@ -48,6 +48,7 @@ export default function Index() {
                 <CaseHistory 
                   cases={history} 
                   onSelectCase={selectCase}
+                  onDeleteCase={deleteCase}
                   selectedCaseId={result?.id}
                 />
               </aside>
@@ -142,6 +143,7 @@ export default function Index() {
                 <CaseHistory 
                   cases={history} 
                   onSelectCase={selectCase}
+                  onDeleteCase={deleteCase}
                   selectedCaseId={result?.id}
                 />
               </aside>
